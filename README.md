@@ -37,11 +37,17 @@ We want to implement a rudimentary MCP. The only tool we need now is a scheduler
 
 We want to transcribe audio from a meet call. We will then feed that output into our MCP, so it can be analysed for potential action items.
 
+- **Capture Audio**: Capture audio from the user and the other person on the call
+  - (tabCapture)[https://developer.chrome.com/docs/extensions/reference/api/tabCapture/] should let you capture the other person's audio
+  - (getUserMedia)[https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia] should let you capture the user's microphone audio
 - **Setup Transcription Service**: Select, implement and test transcription integration.
   - This transcription will happen separately to the CopilotKit implementation
   - The transcription must be realtime and run locally (not via an api)
 - **Feed output into MCP**
   - The output transcript will get fed into the action engine, and possible actions will be surfaced to the copilot
 - The transcription should be viewable in the chrome extension separately to the chat UI (I suggest a tab interface)
+
+
+
 
 To start on this, I suggest looking [here](https://www.reddit.com/r/LocalLLaMA/comments/1ftlznt/openais_new_whisper_turbo_model_running_100/) - this implementation seems pretty close to what we would want for the transcription segment, the additional work would be to use realtime audio (in chunks).
