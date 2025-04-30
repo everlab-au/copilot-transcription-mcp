@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { useCopilotAction } from '@copilotkit/react-core';
-import SchedularConfirmModal from '@/components/SchedulerConfirmModal';
+import SchedularConfirmCard from '@/components/SchedularConfirmCard';
 
 export function SchedulerTool() {
-  const [modalTime, setModalTime] = useState<string | null>(null);
 
   const handleAccept = () => {
-    console.log(`Appointment accepted at ${modalTime}`);
-    setModalTime(null);
+    console.log(`Appointment accepted`);
   };
 
   const handleReject = () => {
-    console.log(`Appointment rejected at ${modalTime}`);
-    setModalTime(null);
+    console.log(`Appointment rejected`);
   };
 
   useCopilotAction({
@@ -23,24 +20,28 @@ export function SchedulerTool() {
         name: 'time',
         type: 'string',
         description: 'The time for the appointment (e.g., "4pm")',
+        required: true,
       },
     ],
-    handler: async ({ time }) => {
-      setModalTime(time);
-    },
+
+    renderAndWaitForResponse: ({ args, respond, status}) => {
+      const { time } = args;
+      return (
+        <SchedularConfirmCard
+          title="Confirm Appointment"
+          description={`Do you want to schedule an appointment at ${time}?`}
+          onAccept={() => {
+            handleAccept();
+            respond?.('appointment accepted');
+          }}
+          onReject={() => {
+            handleReject();
+            respond?.('appointment rejected');
+          }}
+        />
+      )
+    }
   });
 
-  return (
-    <>
-      {modalTime && (
-        <SchedularConfirmModal
-          isOpen={true}
-          title="Confirm Appointment"
-          description={`Do you want to schedule an appointment at ${modalTime}?`}
-          onAccept={handleAccept}
-          onReject={handleReject}
-        />
-      )}
-    </>
-  );
+  return null;
 }

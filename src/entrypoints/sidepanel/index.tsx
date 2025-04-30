@@ -6,9 +6,6 @@ import "@copilotkit/react-ui/styles.css";
 const apiKey = import.meta.env.VITE_COPILOTKIT_AI_PUBLIC_API_KEY as string;
 
 export default function App() {
-  useEffect(() => {
-    console.log("SidePanel loaded", apiKey);
-  }, []);
   return (
     <CopilotKit publicApiKey={apiKey}>
       <div style={{ padding: 16 }}>
