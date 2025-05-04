@@ -7,7 +7,7 @@ export default defineConfig({
   outDir: "dist",
   manifest: {
     manifest_version: 3,
-    permissions: ["tabCapture", "offscreen", "activeTab", "scripting"],
+    permissions: ["tabCapture", "activeTab", "scripting", "sidePanel"],
     host_permissions: ["<all_urls>"],
     background: {
       service_worker: "src/entrypoints/background.ts",
@@ -16,6 +16,9 @@ export default defineConfig({
     },
     action: {
       default_icon: "icon/16.png",
+    },
+    side_panel: {
+      default_path: "sidepanel.html",
     },
   },
 });

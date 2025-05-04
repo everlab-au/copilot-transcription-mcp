@@ -5,34 +5,78 @@ import { SchedulerTool } from "@/copilot/tools/SchedulerTool";
 import "@copilotkit/react-ui/styles.css";
 
 const apiKey = import.meta.env.VITE_COPILOTKIT_AI_PUBLIC_API_KEY as string;
+let previousTabStream: MediaStream | null = null;
 
 export default function App() {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState<boolean>(false);
 
-  const startCapture = () => {
+  const startCapture = async () => {
     setDownloadUrl(null);
     setIsRecording(true);
 
-    chrome.runtime.sendMessage({ type: "START_TAB_AUDIO_CAPTURE" }, (res) => {
-      if (!res?.success) {
-        console.error("❌ Failed to start audio capture.");
-        setIsRecording(false);
-      } else {
-        console.log("🎙️ Recording started via offscreen");
+    try {
+      if (previousTabStream) {
+        previousTabStream.getTracks().forEach((t) => t.stop());
+        previousTabStream = null;
       }
-    });
+
+      const tabStream = await new Promise<MediaStream>((resolve, reject) => {
+        chrome.tabCapture.capture({ audio: true, video: false }, (stream) => {
+          if (!stream || chrome.runtime.lastError) {
+            reject(
+              chrome.runtime.lastError ||
+                new Error("Failed to capture tab audio")
+            );
+          } else {
+            previousTabStream = stream;
+            resolve(stream);
+          }
+        });
+      });
+
+      // const micStream = await navigator.mediaDevices.getUserMedia({
+      //   audio: true,
+      // });
+      // const mixedStream = new MediaStream([
+      //   ...tabStream.getAudioTracks(),
+      //   ...micStream.getAudioTracks(),
+      // ]);
+
+      const recorder = new MediaRecorder(tabStream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (e) => chunks.push(e.data);
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        const url = URL.createObjectURL(blob);
+        setDownloadUrl(url);
+        setIsRecording(false);
+        window.close();
+      };
+
+      recorder.start();
+      setTimeout(() => recorder.stop(), 10000); // auto-stop after 10s
+    } catch (err) {
+      console.error("Recording error:", err);
+      setIsRecording(false);
+      alert(`Recording failed: ${err.message}`);
+    }
   };
 
   useEffect(() => {
-    const handler = (msg: any) => {
-      if (msg.type === "AUDIO_CAPTURE_COMPLETE" && msg.url) {
-        setDownloadUrl(msg.url);
-        setIsRecording(false);
+    // If this is no longer the active tab, close yourself
+    /*
+    chrome.runtime.onMessage.addListener((msg) => {
+      if (msg.type === "TAB_SWITCHED") {
+        // window.close(); // ✅ closes the side panel
+        chrome.sidePanel.setOptions({
+          tabId: msg.tabId,
+          enabled: false,
+        });
+        console.log("Tab switched, closing side panel", msg.tabId);
       }
-    };
-    chrome.runtime.onMessage.addListener(handler);
-    return () => chrome.runtime.onMessage.removeListener(handler);
+    });*/
   }, []);
 
   return (
