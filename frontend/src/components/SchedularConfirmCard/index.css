@@ -1,0 +1,62 @@
+.confirmation-card {
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 400px;
+  background-color: #fafafa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 12px;
+  transition: opacity 0.3s ease;
+}
+
+.confirmation-card.disabled {
+  opacity: 0.6;
+}
+
+.confirmation-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.confirmation-description {
+  margin: 0 0 16px;
+  color: #666;
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.accept-button,
+.reject-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.accept-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.reject-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.confirmation-result {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.confirmation-result.accepted {
+  color: green;
+}
+
+.confirmation-result.rejected {
+  color: red;
+}
